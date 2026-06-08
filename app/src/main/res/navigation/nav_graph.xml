@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.mycoursework.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_details"
+            app:destination="@id/navigation_details" />
+        <action
+            android:id="@+id/action_home_to_add"
+            app:destination="@id/navigation_add_device" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_add_device"
+        android:name="com.example.mycoursework.ui.add.AddDeviceFragment"
+        android:label="@string/title_add_device"
+        tools:layout="@layout/fragment_add_device" />
+
+    <fragment
+        android:id="@+id/navigation_details"
+        android:name="com.example.mycoursework.ui.details.DeviceDetailsFragment"
+        android:label="@string/title_device_details"
+        tools:layout="@layout/fragment_device_details">
+        <argument
+            android:name="device"
+            app:argType="com.example.mycoursework.model.Device" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.mycoursework.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
+</navigation>

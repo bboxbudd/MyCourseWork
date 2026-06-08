@@ -1,0 +1,18 @@
+<resources>
+    <!-- Brand & Accent -->
+    <color name="accent_neon">#00FF66</color>
+    <color name="gradient_start">#00FF66</color>
+    <color name="gradient_end">#00CC52</color>
+
+    <!-- Semantic Colors (Light) -->
+    <color name="window_bg">#F8F9FA</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="text_main">#1A1C1E</color>
+    <color name="text_soft">#44474E</color>
+    <color name="stroke_color">#E0E0E0</color>
+
+    <!-- Constants -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="error">#BA1A1A</color>
+</resources>

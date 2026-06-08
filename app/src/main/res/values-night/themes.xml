@@ -1,0 +1,23 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme (Dark) -->
+    <style name="Theme.MyCourseWork" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/accent_neon</item>
+        <item name="colorPrimaryVariant">@color/gradient_end</item>
+        <item name="colorOnPrimary">@color/black</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Semantic colors from colors.xml -->
+        <item name="android:windowBackground">@color/window_bg</item>
+        <item name="colorSurface">@color/card_bg</item>
+        <item name="colorOnSurface">@color/text_main</item>
+        <item name="colorOnSurfaceVariant">@color/text_soft</item>
+        <item name="colorOutline">@color/stroke_color</item>
+
+        <item name="android:textColorPrimary">@color/text_main</item>
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
+    </style>
+</resources>
