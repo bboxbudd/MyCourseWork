@@ -131,7 +131,7 @@
                                 android:layout_width="60dp"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-black"
-                                android:text="22°C"
+                                android:text="@string/temperature"
                                 android:textColor="@color/accent_neon"
                                 android:textSize="24sp" />
 

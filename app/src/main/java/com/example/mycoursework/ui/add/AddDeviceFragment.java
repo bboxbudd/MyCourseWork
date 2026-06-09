@@ -66,7 +66,7 @@ public class AddDeviceFragment extends Fragment {
             Device.Type type = imageAdapter.getTypeAt(currentItem);
             int imageResId = imageAdapter.getImageResAt(currentItem);
 
-            viewModel.addDevice(name, TextUtils.isEmpty(roomName) ? "Unknown" : roomName, type, imageResId);
+            viewModel.addDevice(name, TextUtils.isEmpty(roomName) ? "Неизвестно" : roomName, type, imageResId);
 
             Toast.makeText(requireContext(), R.string.device_added_success, Toast.LENGTH_SHORT).show();
             Navigation.findNavController(v).navigateUp();

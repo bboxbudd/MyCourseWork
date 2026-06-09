@@ -56,9 +56,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
         public void bind(User user, OnUserDeleteListener listener) {
-            binding.textUserName.setText("Username: " + user.getUsername());
-            binding.textUserPassword.setText("Password: " + user.getPassword());
-            binding.textUserRole.setText("Role: " + user.getRole().name());
+            binding.textUserName.setText("Имя пользователя: " + user.getUsername());
+            binding.textUserPassword.setText("Пароль: " + user.getPassword());
+            binding.textUserRole.setText("Роль: " + user.getRole().name());
 
             // Admin cannot delete themselves in this simple implementation
             binding.buttonDeleteUser.setVisibility(user.isAdmin() ? android.view.View.GONE : android.view.View.VISIBLE);

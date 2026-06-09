@@ -51,7 +51,7 @@ public class RegisterFragment extends Fragment {
 
         viewModel.getRegisterSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Регистрация успешна", Toast.LENGTH_SHORT).show();
                 viewModel.resetAuthStatus(); // Сбрасываем после успешного выполнения
                 Navigation.findNavController(requireView()).navigate(R.id.action_register_to_login);
             }

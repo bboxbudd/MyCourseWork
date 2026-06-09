@@ -33,4 +33,17 @@
     <string name="registered_users">Зарегистрированные пользователи</string>
     <string name="username_field">Имя пользователя:</string>
     <string name="role_field">Роль:</string>
+    <string name="admin_radio">Администратор</string>
+    <string name="user_radio">Пользователь</string>
+    <string name="password_hint">Пароль</string>
+    <string name="username_hint">Имя пользователя</string>
+    <string name="register_button">Зарегистрироваться</string>
+    <string name="have_an_account">Уже есть аккаунт? Авторизоваться</string>
+    <string name="registration">Регистрация</string>
+    <string name="login_button">Авторизоваться</string>
+    <string name="no_account">Нет аккаунта? Зарегистрироваться</string>
+    <string name="login">Авторизация</string>
+    <string name="smart_home">Мой Умный Дом</string>
+    <string name="add_device">Добавить устройство</string>
+    <string name="temperature">22°C</string>
 </resources>

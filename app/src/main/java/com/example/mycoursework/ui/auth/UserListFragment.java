@@ -39,12 +39,12 @@ public class UserListFragment extends Fragment {
 
         adapter.setOnUserDeleteListener(user -> {
             new AlertDialog.Builder(requireContext())
-                    .setTitle("Delete User")
-                    .setMessage("Are you sure you want to delete user " + user.getUsername() + " and all their data?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
+                    .setTitle("Удалить пользователя")
+                    .setMessage("Вы уверены, что хотите удалить пользователы " + user.getUsername() + " и все их данные?")
+                    .setPositiveButton("Удалить", (dialog, which) -> {
                         viewModel.deleteUser(user.getUsername());
                     })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton("Отмена", null)
                     .show();
         });
 

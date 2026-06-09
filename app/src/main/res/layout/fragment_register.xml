@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Register"
+        android:text="@string/registration"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="32dp"/>
@@ -18,7 +18,7 @@
         android:id="@+id/username_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
+        android:hint="@string/username_hint"
         android:inputType="text"
         android:autofillHints="username"/>
 
@@ -26,7 +26,7 @@
         android:id="@+id/password_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
+        android:hint="@string/password_hint"
         android:inputType="textPassword"
         android:autofillHints="password"/>
 
@@ -41,21 +41,21 @@
             android:id="@+id/radio_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User"
+            android:text="@string/user_radio"
             android:checked="true"/>
 
         <RadioButton
             android:id="@+id/radio_admin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Admin"/>
+            android:text="@string/admin_radio"/>
     </RadioGroup>
 
     <Button
         android:id="@+id/register_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Register"
+        android:text="@string/register_button"
         android:layout_marginTop="16dp"/>
 
     <Button
@@ -63,6 +63,6 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Already have an account? Login"
+        android:text="@string/have_an_account"
         android:layout_marginTop="8dp"/>
 </LinearLayout>

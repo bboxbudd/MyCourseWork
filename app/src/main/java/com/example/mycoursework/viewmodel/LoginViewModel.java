@@ -50,7 +50,7 @@ public class LoginViewModel extends AndroidViewModel {
 
     public void login(String username, String password) {
         if (username.isEmpty() || password.isEmpty()) {
-            loginError.setValue("Please fill all fields");
+            loginError.setValue("Заполните все поля");
             return;
         }
         userRepository.login(username, password, (success, message) -> {
@@ -64,7 +64,7 @@ public class LoginViewModel extends AndroidViewModel {
 
     public void register(String username, String password, User.Role role) {
         if (username.isEmpty() || password.isEmpty()) {
-            registerError.setValue("Please fill all fields");
+            registerError.setValue("Заполните все поля");
             return;
         }
         userRepository.register(username, password, role, (success, message) -> {

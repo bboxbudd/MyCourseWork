@@ -41,8 +41,8 @@ public class SettingsFragment extends Fragment {
         // Update User Info
         loginViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
-                binding.textUsername.setText("Username: " + user.getUsername());
-                binding.textRole.setText("Role: " + user.getRole().name());
+                binding.textUsername.setText("Имя пользователя: " + user.getUsername());
+                binding.textRole.setText("Роль: " + user.getRole().name());
             }
         });
 
