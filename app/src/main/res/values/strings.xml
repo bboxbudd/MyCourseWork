@@ -1,32 +1,36 @@
 <resources>
     <string name="app_name">Smart Home Manager</string>
-    <string name="title_home">Devices</string>
-    <string name="title_settings">Settings</string>
-    <string name="title_add_device">Add Device</string>
-    <string name="title_device_details">Device Details</string>
+    <string name="title_home">Устройства</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_add_device">устройство</string>
+    <string name="title_device_details">Настройки устройства</string>
 
-    <string name="hint_device_name">Device Name</string>
-    <string name="hint_device_room">Room (e.g., Living Room)</string>
-    <string name="hint_ac_temp">Target Temperature (°C)</string>
+    <string name="hint_device_name">Название</string>
+    <string name="hint_device_room">Комната</string>
+    <string name="hint_ac_temp">Температура (°C)</string>
 
-    <string name="button_save">Save</string>
-    <string name="button_cancel">Cancel</string>
-    <string name="button_delete">Remove Device</string>
-    <string name="button_leave_home">Leave Home</string>
+    <string name="button_save">Сохранить</string>
+    <string name="button_cancel">Отмена</string>
+    <string name="button_delete">Удалить устройство</string>
 
     <string name="label_on">ON</string>
     <string name="label_off">OFF</string>
-    <string name="label_ac_settings">Air Conditioner Settings</string>
+    <string name="label_ac_settings">Настройки кондиционера</string>
 
-    <string name="error_empty_name">Name cannot be empty</string>
-    <string name="confirm_delete">Are you sure you want to remove this device?</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="device_added_success">Device added successfully</string>
-    <string name="pref_dark_mode">Dark Mode</string>
+    <string name="error_empty_name">Название не может быть пустым</string>
+    <string name="confirm_delete">Вы уверены, что хотите удалить это устройство?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="device_added_success">Устройство успешно добавлено</string>
+    <string name="pref_dark_mode">Темная тема</string>
 
-    <string name="type_light">Light</string>
-    <string name="type_ac">Air Conditioner</string>
-    <string name="type_socket">Smart Socket</string>
-    <string name="msg_all_off">All devices have been turned off</string>
+    <string name="type_light">Освещение</string>
+    <string name="type_ac">Кондиционер</string>
+    <string name="type_socket">Умная розетка</string>
+    <string name="username_admin">Имя пользователя: admin</string>
+    <string name="password_admin">Пароль: admin</string>
+    <string name="role_admin">Роль: ADMIN</string>
+    <string name="registered_users">Зарегистрированные пользователи</string>
+    <string name="username_field">Имя пользователя:</string>
+    <string name="role_field">Роль:</string>
 </resources>

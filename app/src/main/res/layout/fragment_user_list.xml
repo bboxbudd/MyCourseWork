@@ -9,7 +9,7 @@
         android:id="@+id/text_users_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Registered Users"
+        android:text="@string/registered_users"
         android:textAppearance="?attr/textAppearanceHeadline5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
