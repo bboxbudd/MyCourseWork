@@ -4,27 +4,32 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.mycoursework.model.Room;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class RoomPagerAdapter extends FragmentStateAdapter {
 
-    private final List<String> rooms = new ArrayList<>();
+    private final List<Room> rooms = new ArrayList<>();
 
     public RoomPagerAdapter(@NonNull Fragment fragment) {
         super(fragment);
     }
 
-    public void setRooms(List<String> newRooms) {
+    public void setRooms(List<Room> newRooms) {
         rooms.clear();
-        rooms.addAll(newRooms);
+        if (newRooms != null) {
+            rooms.addAll(newRooms);
+        }
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return RoomFragment.newInstance(rooms.get(position));
+        // Pass the unique room ID to the fragment
+        return RoomFragment.newInstance(rooms.get(position).getId());
     }
 
     @Override
@@ -33,6 +38,6 @@ public class RoomPagerAdapter extends FragmentStateAdapter {
     }
 
     public String getRoomName(int position) {
-        return rooms.get(position);
+        return rooms.get(position).getName();
     }
 }

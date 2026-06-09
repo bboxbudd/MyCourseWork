@@ -1,8 +1,6 @@
 package com.example.mycoursework.ui.home;
 
 import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mycoursework.databinding.ItemDeviceBinding;
 import com.example.mycoursework.model.Device;
 
-import java.util.Locale;
-
 public class DeviceAdapter extends ListAdapter<Device, DeviceAdapter.DeviceViewHolder> {
 
     private final OnDeviceClickListener listener;
-    private final Handler handler = new Handler(Looper.getMainLooper());
 
     public interface OnDeviceClickListener {
         void onDeviceClick(Device device);
@@ -41,12 +36,11 @@ public class DeviceAdapter extends ListAdapter<Device, DeviceAdapter.DeviceViewH
 
     @Override
     public void onBindViewHolder(@NonNull DeviceViewHolder holder, int position) {
-        holder.bind(getItem(position), listener, handler);
+        holder.bind(getItem(position), listener);
     }
 
     static class DeviceViewHolder extends RecyclerView.ViewHolder {
         private final ItemDeviceBinding binding;
-        private Runnable timerRunnable;
 
         public DeviceViewHolder(ItemDeviceBinding binding) {
             super(binding.getRoot());
@@ -54,40 +48,18 @@ public class DeviceAdapter extends ListAdapter<Device, DeviceAdapter.DeviceViewH
         }
 
         @SuppressLint("SetTextI18n")
-        public void bind(Device device, OnDeviceClickListener listener, Handler handler) {
+        public void bind(Device device, OnDeviceClickListener listener) {
             binding.textDeviceName.setText(device.getName());
             
-            // Отображение температуры для кондиционера вместо комнаты
-            if (device.getType() == Device.Type.AC) {
+            // Отображение температуры только для кондиционера
+            if (device.getType() == Device.Type.AC && device.getTemperature() != null) {
                 binding.textDeviceExtra.setVisibility(View.VISIBLE);
                 binding.textDeviceExtra.setText(device.getTemperature() + "°C");
             } else {
                 binding.textDeviceExtra.setVisibility(View.GONE);
             }
             
-            // Timer Logic
-            if (timerRunnable != null) {
-                handler.removeCallbacks(timerRunnable);
-            }
-
-            // Таймер не показываем для розеток (согласно предыдущему требованию)
-            if (device.isTimerActive() && device.getType() != Device.Type.SOCKET) {
-                binding.textTimer.setVisibility(View.VISIBLE);
-                updateTimerText(device);
-                
-                timerRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        updateTimerText(device);
-                        if (device.isTimerActive() && device.getType() != Device.Type.SOCKET) {
-                            handler.postDelayed(this, 1000);
-                        }
-                    }
-                };
-                handler.postDelayed(timerRunnable, 1000);
-            } else {
-                binding.textTimer.setVisibility(View.GONE);
-            }
+            // Таймер полностью удален из логики
 
             binding.imageDeviceType.setImageResource(device.getImageResId());
             binding.switchEnabled.setOnCheckedChangeListener(null);
@@ -96,25 +68,8 @@ public class DeviceAdapter extends ListAdapter<Device, DeviceAdapter.DeviceViewH
             // Interaction
             binding.getRoot().setOnClickListener(v -> listener.onDeviceClick(device));
             binding.switchEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Если кондиционер выключается, сбрасываем таймер
-                if (device.getType() == Device.Type.AC && !isChecked) {
-                    device.setTimerActive(false);
-                }
                 listener.onDeviceToggled(device, isChecked);
             });
-        }
-
-        private void updateTimerText(Device device) {
-            long remainingMillis = (device.getTimerStartTime() + (long) device.getTimerMinutes() * 60 * 1000) - System.currentTimeMillis();
-            if (remainingMillis <= 0) {
-                binding.textTimer.setVisibility(View.GONE);
-                device.setTimerActive(false);
-            } else {
-                long seconds = remainingMillis / 1000;
-                long minutes = seconds / 60;
-                long secs = seconds % 60;
-                binding.textTimer.setText(String.format(Locale.getDefault(), "• %02d:%02d", minutes, secs));
-            }
         }
     }
 

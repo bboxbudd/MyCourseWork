@@ -13,13 +13,10 @@
     <string name="button_cancel">Cancel</string>
     <string name="button_delete">Remove Device</string>
     <string name="button_leave_home">Leave Home</string>
-    <string name="button_start">Start</string>
-    <string name="button_stop">Stop</string>
 
     <string name="label_on">ON</string>
     <string name="label_off">OFF</string>
     <string name="label_ac_settings">Air Conditioner Settings</string>
-    <string name="label_light_timer">Timer (minutes)</string>
 
     <string name="error_empty_name">Name cannot be empty</string>
     <string name="confirm_delete">Are you sure you want to remove this device?</string>

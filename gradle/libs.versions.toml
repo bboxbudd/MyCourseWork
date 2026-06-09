@@ -10,6 +10,7 @@ ext-junit = "1.2.1"
 espresso-core = "3.6.1"
 activity = "1.10.0"
 fragment = "1.8.5"
+room = "2.6.1"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -24,6 +25,8 @@ fragment = { group = "androidx.fragment", name = "fragment", version.ref = "frag
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "ext-junit" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

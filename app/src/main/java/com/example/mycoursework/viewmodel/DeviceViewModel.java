@@ -8,28 +8,34 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.mycoursework.data.DeviceRepository;
+import com.example.mycoursework.model.AcSettings;
 import com.example.mycoursework.model.Device;
+import com.example.mycoursework.model.Room;
 
 import java.util.List;
 
 public class DeviceViewModel extends AndroidViewModel {
     private final DeviceRepository repository;
     private final LiveData<List<Device>> devices;
-    private final LiveData<List<String>> rooms;
+    private final LiveData<List<Room>> rooms;
     private final MutableLiveData<String> selectedRoom = new MutableLiveData<>();
 
     public DeviceViewModel(@NonNull Application application) {
         super(application);
-        repository = DeviceRepository.getInstance();
+        repository = DeviceRepository.getInstance(application);
         devices = repository.getDevices();
         rooms = repository.getRooms();
+    }
+
+    public void setCurrentUser(String username) {
+        repository.setCurrentUser(username);
     }
 
     public LiveData<List<Device>> getDevices() {
         return devices;
     }
 
-    public LiveData<List<String>> getRooms() {
+    public LiveData<List<Room>> getRooms() {
         return rooms;
     }
 
@@ -41,19 +47,23 @@ public class DeviceViewModel extends AndroidViewModel {
         return selectedRoom;
     }
 
-    public void addDevice(Device device) {
-        repository.addDevice(device);
+    public void addDevice(String name, String room, Device.Type type, int imageResId) {
+        repository.addDevice(name, room, type, imageResId);
     }
 
     public void updateDevice(Device device) {
         repository.updateDevice(device);
     }
 
-    public void turnOffAllDevices() {
-        repository.turnOffAllDevices();
-    }
-
     public void deleteDevice(String deviceId) {
         repository.deleteDevice(deviceId);
+    }
+
+    public LiveData<AcSettings> getAcSettings(String deviceId) {
+        return repository.getAcSettings(deviceId);
+    }
+
+    public void updateAcTemperature(String deviceId, int temperature) {
+        repository.updateAcTemperature(deviceId, temperature);
     }
 }

@@ -19,6 +19,8 @@ import com.example.mycoursework.databinding.FragmentAddDeviceBinding;
 import com.example.mycoursework.model.Device;
 import com.example.mycoursework.viewmodel.DeviceViewModel;
 
+import java.util.stream.Collectors;
+
 public class AddDeviceFragment extends Fragment {
 
     private FragmentAddDeviceBinding binding;
@@ -43,14 +45,17 @@ public class AddDeviceFragment extends Fragment {
 
         // Setup AutoCompleteTextView for rooms
         viewModel.getRooms().observe(getViewLifecycleOwner(), rooms -> {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                    android.R.layout.simple_dropdown_item_1line, rooms);
-            binding.editDeviceRoom.setAdapter(adapter);
+            if (rooms != null) {
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                        android.R.layout.simple_dropdown_item_1line, 
+                        rooms.stream().map(r -> r.getName()).collect(Collectors.toList()));
+                binding.editDeviceRoom.setAdapter(adapter);
+            }
         });
 
         binding.buttonSaveDevice.setOnClickListener(v -> {
             String name = binding.editDeviceName.getText().toString().trim();
-            String room = binding.editDeviceRoom.getText().toString().trim();
+            String roomName = binding.editDeviceRoom.getText().toString().trim();
 
             if (TextUtils.isEmpty(name)) {
                 binding.layoutDeviceName.setError(getString(R.string.error_empty_name));
@@ -61,8 +66,7 @@ public class AddDeviceFragment extends Fragment {
             Device.Type type = imageAdapter.getTypeAt(currentItem);
             int imageResId = imageAdapter.getImageResAt(currentItem);
 
-            Device newDevice = new Device(name, TextUtils.isEmpty(room) ? "Unknown" : room, type, imageResId);
-            viewModel.addDevice(newDevice);
+            viewModel.addDevice(name, TextUtils.isEmpty(roomName) ? "Unknown" : roomName, type, imageResId);
 
             Toast.makeText(requireContext(), R.string.device_added_success, Toast.LENGTH_SHORT).show();
             Navigation.findNavController(v).navigateUp();

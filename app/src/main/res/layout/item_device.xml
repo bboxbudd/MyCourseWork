@@ -42,7 +42,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Smart Lamp" />
 
-        <!-- Теперь используется для температуры кондиционера -->
         <TextView
             android:id="@+id/text_device_extra"
             android:layout_width="wrap_content"
@@ -54,20 +53,6 @@
             app:layout_constraintStart_toStartOf="@id/text_device_name"
             app:layout_constraintTop_toBottomOf="@id/text_device_name"
             tools:text="24°C" />
-
-        <TextView
-            android:id="@+id/text_timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@color/error"
-            android:textSize="12sp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/text_device_extra"
-            app:layout_constraintStart_toEndOf="@id/text_device_extra"
-            app:layout_constraintTop_toTopOf="@id/text_device_extra"
-            tools:text="• 05:00" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_enabled"

@@ -15,12 +15,14 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.mycoursework.R;
 import com.example.mycoursework.databinding.FragmentHomeBinding;
 import com.example.mycoursework.viewmodel.DeviceViewModel;
+import com.example.mycoursework.viewmodel.LoginViewModel;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
     private DeviceViewModel viewModel;
+    private LoginViewModel loginViewModel;
     private RoomPagerAdapter pagerAdapter;
 
     @Nullable
@@ -35,8 +37,20 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
+        loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
+        
         pagerAdapter = new RoomPagerAdapter(this);
         binding.viewPagerRooms.setAdapter(pagerAdapter);
+
+        // Role-based UI: Users can add devices, Admin doesn't even see this screen
+        loginViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null && !user.isAdmin()) {
+                binding.fabAddDevice.setVisibility(View.VISIBLE);
+                viewModel.setCurrentUser(user.getUsername());
+            } else {
+                binding.fabAddDevice.setVisibility(View.GONE);
+            }
+        });
 
         viewModel.getRooms().observe(getViewLifecycleOwner(), rooms -> {
             pagerAdapter.setRooms(rooms);
@@ -46,10 +60,12 @@ public class HomeFragment extends Fragment {
 
             // Restore last selected room
             String lastRoom = viewModel.getSelectedRoom().getValue();
-            if (lastRoom != null) {
-                int index = rooms.indexOf(lastRoom);
-                if (index != -1) {
-                    binding.viewPagerRooms.setCurrentItem(index, false);
+            if (lastRoom != null && rooms != null) {
+                for (int i = 0; i < rooms.size(); i++) {
+                    if (rooms.get(i).getName().equals(lastRoom)) {
+                        binding.viewPagerRooms.setCurrentItem(i, false);
+                        break;
+                    }
                 }
             }
         });

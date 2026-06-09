@@ -16,22 +16,21 @@ import com.example.mycoursework.databinding.FragmentRoomBinding;
 import com.example.mycoursework.model.Device;
 import com.example.mycoursework.viewmodel.DeviceViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoomFragment extends Fragment implements DeviceAdapter.OnDeviceClickListener {
 
-    private static final String ARG_ROOM_NAME = "room_name";
+    private static final String ARG_ROOM_ID = "room_id";
     private FragmentRoomBinding binding;
     private DeviceViewModel viewModel;
     private DeviceAdapter adapter;
-    private String roomName;
+    private String roomId;
 
-    public static RoomFragment newInstance(String roomName) {
+    public static RoomFragment newInstance(String roomId) {
         RoomFragment fragment = new RoomFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_ROOM_NAME, roomName);
+        args.putString(ARG_ROOM_ID, roomId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -40,7 +39,7 @@ public class RoomFragment extends Fragment implements DeviceAdapter.OnDeviceClic
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            roomName = getArguments().getString(ARG_ROOM_NAME);
+            roomId = getArguments().getString(ARG_ROOM_ID);
         }
     }
 
@@ -59,10 +58,12 @@ public class RoomFragment extends Fragment implements DeviceAdapter.OnDeviceClic
         binding.recyclerDevices.setAdapter(adapter);
 
         viewModel.getDevices().observe(getViewLifecycleOwner(), devices -> {
-            List<Device> filteredDevices = devices.stream()
-                    .filter(d -> d.getRoom().equals(roomName))
-                    .collect(Collectors.toList());
-            adapter.submitList(filteredDevices);
+            if (devices != null) {
+                List<Device> filteredDevices = devices.stream()
+                        .filter(d -> d.getRoomId().equals(roomId))
+                        .collect(Collectors.toList());
+                adapter.submitList(filteredDevices);
+            }
         });
     }
 
@@ -75,8 +76,9 @@ public class RoomFragment extends Fragment implements DeviceAdapter.OnDeviceClic
 
     @Override
     public void onDeviceToggled(Device device, boolean isEnabled) {
-        device.setEnabled(isEnabled);
-        viewModel.updateDevice(device);
+        Device updated = device.copy();
+        updated.setEnabled(isEnabled);
+        viewModel.updateDevice(updated);
     }
 
     @Override

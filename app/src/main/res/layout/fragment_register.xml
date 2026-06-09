@@ -1,119 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/window_bg"
-    android:padding="24dp">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
 
     <TextView
-        android:id="@+id/text_register_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:fontFamily="sans-serif-black"
-        android:text="Create Account"
-        android:textColor="@color/text_main"
-        android:textSize="32sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="Register"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layout_reg_username"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <EditText
+        android:id="@+id/username_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:hint="Username"
-        app:boxStrokeColor="@color/accent_neon"
-        app:hintTextColor="@color/accent_neon"
-        app:layout_constraintTop_toBottomOf="@id/text_register_title">
+        android:inputType="text"
+        android:autofillHints="username"/>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_reg_username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:textColor="@color/text_main" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layout_reg_password"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <EditText
+        android:id="@+id/password_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:hint="Password"
-        app:boxStrokeColor="@color/accent_neon"
-        app:hintTextColor="@color/accent_neon"
-        app:layout_constraintTop_toBottomOf="@id/layout_reg_username"
-        app:passwordToggleEnabled="true">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_reg_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:textColor="@color/text_main" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:id="@+id/text_role_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Select Role:"
-        android:textColor="@color/text_soft"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layout_reg_password" />
+        android:inputType="textPassword"
+        android:autofillHints="password"/>
 
     <RadioGroup
-        android:id="@+id/radio_group_role"
+        android:id="@+id/role_radio_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/text_role_label">
+        android:layout_marginTop="16dp">
 
         <RadioButton
             android:id="@+id/radio_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
             android:text="User"
-            android:textColor="@color/text_main" />
+            android:checked="true"/>
 
         <RadioButton
             android:id="@+id/radio_admin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:text="Admin"
-            android:textColor="@color/text_main" />
+            android:text="Admin"/>
     </RadioGroup>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button_register"
+    <Button
+        android:id="@+id/register_button"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/bg_button_gradient"
-        android:fontFamily="sans-serif-black"
+        android:layout_height="wrap_content"
         android:text="Register"
-        android:textAllCaps="false"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/radio_group_role" />
+        android:layout_marginTop="16dp"/>
 
-    <TextView
-        android:id="@+id/text_goto_login"
+    <Button
+        android:id="@+id/go_to_login_button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:text="Already have an account? Login"
-        android:textColor="@color/accent_neon"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_register" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_marginTop="8dp"/>
+</LinearLayout>

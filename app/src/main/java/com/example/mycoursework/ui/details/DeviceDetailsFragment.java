@@ -1,16 +1,10 @@
 package com.example.mycoursework.ui.details;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,15 +14,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.mycoursework.R;
+import com.example.mycoursework.data.AppDatabase;
 import com.example.mycoursework.databinding.FragmentDeviceDetailsBinding;
 import com.example.mycoursework.model.Device;
-import com.example.mycoursework.notification.TimerReceiver;
 import com.example.mycoursework.viewmodel.DeviceViewModel;
+import com.example.mycoursework.viewmodel.LoginViewModel;
 
 public class DeviceDetailsFragment extends Fragment {
 
     private FragmentDeviceDetailsBinding binding;
     private DeviceViewModel viewModel;
+    private LoginViewModel loginViewModel;
     private Device device;
     private String deviceId;
 
@@ -43,6 +39,7 @@ public class DeviceDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
+        loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
 
         if (getArguments() != null) {
             Device d = getArguments().getParcelable("device");
@@ -53,16 +50,24 @@ public class DeviceDetailsFragment extends Fragment {
 
         if (deviceId != null) {
             viewModel.getDevices().observe(getViewLifecycleOwner(), devices -> {
-                for (Device d : devices) {
-                    if (d.getId().equals(deviceId)) {
-                        this.device = d;
-                        updateUI();
-                        break;
+                if (devices != null) {
+                    for (Device d : devices) {
+                        if (d.getId().equals(deviceId)) {
+                            this.device = d;
+                            updateUI();
+                            break;
+                        }
                     }
                 }
             });
             setupListeners();
         }
+
+        loginViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                binding.buttonDeleteDevice.setVisibility(View.VISIBLE);
+            }
+        });
 
         binding.buttonDeleteDevice.setOnClickListener(v -> showDeleteConfirmation());
     }
@@ -72,12 +77,6 @@ public class DeviceDetailsFragment extends Fragment {
             if (device != null && device.isEnabled() != isChecked) {
                 Device updated = device.copy();
                 updated.setEnabled(isChecked);
-                
-                // Логика: если кондиционер выключается, отменяем таймер
-                if (updated.getType() == Device.Type.AC && !isChecked && updated.isTimerActive()) {
-                    cancelTimerInternal(updated);
-                }
-                
                 viewModel.updateDevice(updated);
             }
         });
@@ -91,30 +90,10 @@ public class DeviceDetailsFragment extends Fragment {
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                Device updated = device.copy();
-                updated.setTemperature(seekBar.getProgress());
-                viewModel.updateDevice(updated);
-            }
-        });
-
-        binding.buttonStartTimer.setOnClickListener(v -> {
-            try {
-                int minutes = Integer.parseInt(binding.editTimerValue.getText().toString());
-                if (minutes > 0) {
-                    startTimer(minutes);
-                } else {
-                    Toast.makeText(requireContext(), "Введите время > 0", Toast.LENGTH_SHORT).show();
+                if (device != null) {
+                    viewModel.updateAcTemperature(device.getId(), seekBar.getProgress());
                 }
-            } catch (NumberFormatException e) {
-                Toast.makeText(requireContext(), "Некорректное число", Toast.LENGTH_SHORT).show();
             }
-        });
-
-        binding.buttonStopTimer.setOnClickListener(v -> {
-            Device updated = device.copy();
-            cancelTimerInternal(updated);
-            viewModel.updateDevice(updated);
-            Toast.makeText(requireContext(), "Таймер остановлен", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -122,80 +101,40 @@ public class DeviceDetailsFragment extends Fragment {
         if (device == null) return;
         
         binding.textDetailName.setText(device.getName());
-        binding.textDetailRoom.setText(device.getRoom());
+        
+        AppDatabase.getDatabase(requireContext()).roomDao().getRoomNameById(device.getRoomId())
+                .observe(getViewLifecycleOwner(), roomName -> {
+                    if (roomName != null) {
+                        binding.textDetailRoom.setText(roomName);
+                    }
+                });
+
         binding.imageDetailDevice.setImageResource(device.getImageResId());
         
         binding.switchDetailEnabled.setOnCheckedChangeListener(null);
-        binding.switchDetailEnabled.setChecked(device.isEnabled());
-        binding.switchDetailEnabled.setText(device.isEnabled() ? R.string.label_on : R.string.label_off);
-        binding.switchDetailEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Device updated = device.copy();
-            updated.setEnabled(isChecked);
-            if (updated.getType() == Device.Type.AC && !isChecked && updated.isTimerActive()) {
-                cancelTimerInternal(updated);
-            }
-            viewModel.updateDevice(updated);
-        });
+        switchEnabledInDetails(device.isEnabled());
 
         if (device.getType() == Device.Type.AC) {
             binding.layoutAcControls.setVisibility(View.VISIBLE);
-            binding.seekbarTemp.setProgress(device.getTemperature());
-            binding.textTempValue.setText(device.getTemperature() + "°C");
+            viewModel.getAcSettings(device.getId()).observe(getViewLifecycleOwner(), settings -> {
+                if (settings != null) {
+                    binding.seekbarTemp.setProgress(settings.getTemperature());
+                    binding.textTempValue.setText(settings.getTemperature() + "°C");
+                }
+            });
         } else {
             binding.layoutAcControls.setVisibility(View.GONE);
         }
-
-        if (device.getType() == Device.Type.SOCKET) {
-            binding.layoutTimerControls.setVisibility(View.GONE);
-        } else {
-            binding.layoutTimerControls.setVisibility(View.VISIBLE);
-        }
-
-        if (!binding.editTimerValue.hasFocus()) {
-            binding.editTimerValue.setText(String.valueOf(device.getTimerMinutes()));
-        }
-        
-        binding.buttonStopTimer.setEnabled(device.isTimerActive());
     }
 
-    private void startTimer(int minutes) {
-        Device updated = device.copy();
-        updated.setTimerMinutes(minutes);
-        updated.setTimerStartTime(System.currentTimeMillis());
-        updated.setTimerActive(true);
-        viewModel.updateDevice(updated);
-
-        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(requireContext(), TimerReceiver.class);
-        intent.putExtra(TimerReceiver.EXTRA_DEVICE_ID, device.getId());
-        
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 
-                device.getId().hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        long triggerTime = System.currentTimeMillis() + (long) minutes * 60 * 1000;
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
-            } else {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
-            }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
-        }
-        
-        Toast.makeText(requireContext(), "Таймер запущен", Toast.LENGTH_SHORT).show();
-    }
-
-    private void cancelTimerInternal(Device updated) {
-        updated.setTimerActive(false);
-        updated.setTimerMinutes(0);
-
-        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(requireContext(), TimerReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 
-                updated.getId().hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        alarmManager.cancel(pendingIntent);
+    private void switchEnabledInDetails(boolean isEnabled) {
+        binding.switchDetailEnabled.setChecked(isEnabled);
+        binding.switchDetailEnabled.setText(isEnabled ? R.string.label_on : R.string.label_off);
+        binding.switchDetailEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Device updated = device.copy();
+            updated.setEnabled(isChecked);
+            viewModel.updateDevice(updated);
+        });
     }
 
     private void showDeleteConfirmation() {

@@ -4,17 +4,22 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
+@Entity(tableName = "users")
 public class User implements Parcelable {
     public enum Role {
         ADMIN, USER
     }
 
+    @PrimaryKey
+    @NonNull
     private final String username;
     private final String password;
     private final Role role;
 
-    public User(String username, String password, Role role) {
+    public User(@NonNull String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role = role;
@@ -38,6 +43,7 @@ public class User implements Parcelable {
         }
     };
 
+    @NonNull
     public String getUsername() {
         return username;
     }

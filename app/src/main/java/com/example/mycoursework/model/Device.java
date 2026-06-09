@@ -3,62 +3,66 @@ package com.example.mycoursework.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
+
 import com.example.mycoursework.R;
 
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity(
+        tableName = "devices",
+        foreignKeys = @ForeignKey(
+                entity = Room.class,
+                parentColumns = "id",
+                childColumns = "roomId",
+                onDelete = ForeignKey.CASCADE
+        ),
+        indices = {@Index("roomId")}
+)
 public class Device implements Parcelable {
     public enum Type {
         LIGHT, AC, SOCKET
     }
 
+    @PrimaryKey
+    @NonNull
     private final String id;
+    private final String roomId;
     private String name;
-    private String room;
     private Type type;
     private boolean isEnabled;
-    private int temperature;
-    private int timerMinutes;
-    private long timerStartTime;
-    private boolean isTimerActive;
     private int imageResId;
+    private Integer temperature; // Используем Integer для возможности null у ламп и розеток
 
-    public Device(String name, String room, Type type) {
-        this(name, room, type, getDefaultImage(type));
+    @Ignore
+    public Device(String name, String roomId, Type type) {
+        this(UUID.randomUUID().toString(), roomId, name, type, false, getDefaultImage(type), type == Type.AC ? 22 : null);
     }
 
-    public Device(String name, String room, Type type, int imageResId) {
-        this.id = UUID.randomUUID().toString();
-        this.name = name;
-        this.room = room;
-        this.type = type;
-        this.isEnabled = false;
-        this.temperature = 22;
-        this.timerMinutes = 0;
-        this.timerStartTime = 0;
-        this.isTimerActive = false;
-        this.imageResId = imageResId;
+    @Ignore
+    public Device(String name, String roomId, Type type, int imageResId) {
+        this(UUID.randomUUID().toString(), roomId, name, type, false, imageResId, type == Type.AC ? 22 : null);
     }
 
-    private Device(String id, String name, String room, Type type, boolean isEnabled, 
-                   int temperature, int timerMinutes, long timerStartTime, 
-                   boolean isTimerActive, int imageResId) {
+    public Device(@NonNull String id, String roomId, String name, Type type, boolean isEnabled, 
+                   int imageResId, Integer temperature) {
         this.id = id;
+        this.roomId = roomId;
         this.name = name;
-        this.room = room;
         this.type = type;
         this.isEnabled = isEnabled;
-        this.temperature = temperature;
-        this.timerMinutes = timerMinutes;
-        this.timerStartTime = timerStartTime;
-        this.isTimerActive = isTimerActive;
         this.imageResId = imageResId;
+        this.temperature = temperature;
     }
 
     public Device copy() {
-        return new Device(id, name, room, type, isEnabled, temperature, 
-                          timerMinutes, timerStartTime, isTimerActive, imageResId);
+        return new Device(id, roomId, name, type, isEnabled, imageResId, temperature);
     }
 
     private static int getDefaultImage(Type type) {
@@ -72,15 +76,16 @@ public class Device implements Parcelable {
 
     protected Device(Parcel in) {
         id = in.readString();
+        roomId = in.readString();
         name = in.readString();
-        room = in.readString();
         type = Type.valueOf(in.readString());
         isEnabled = in.readByte() != 0;
-        temperature = in.readInt();
-        timerMinutes = in.readInt();
-        timerStartTime = in.readLong();
-        isTimerActive = in.readByte() != 0;
         imageResId = in.readInt();
+        if (in.readByte() == 0) {
+            temperature = null;
+        } else {
+            temperature = in.readInt();
+        }
     }
 
     public static final Creator<Device> CREATOR = new Creator<Device>() {
@@ -95,25 +100,19 @@ public class Device implements Parcelable {
         }
     };
 
+    @NonNull
     public String getId() { return id; }
+    public String getRoomId() { return roomId; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public String getRoom() { return room; }
-    public void setRoom(String room) { this.room = room; }
     public Type getType() { return type; }
     public void setType(Type type) { this.type = type; }
     public boolean isEnabled() { return isEnabled; }
     public void setEnabled(boolean enabled) { isEnabled = enabled; }
-    public int getTemperature() { return temperature; }
-    public void setTemperature(int temperature) { this.temperature = temperature; }
-    public int getTimerMinutes() { return timerMinutes; }
-    public void setTimerMinutes(int timerMinutes) { this.timerMinutes = timerMinutes; }
-    public long getTimerStartTime() { return timerStartTime; }
-    public void setTimerStartTime(long timerStartTime) { this.timerStartTime = timerStartTime; }
-    public boolean isTimerActive() { return isTimerActive; }
-    public void setTimerActive(boolean timerActive) { isTimerActive = timerActive; }
     public int getImageResId() { return imageResId; }
     public void setImageResId(int imageResId) { this.imageResId = imageResId; }
+    public Integer getTemperature() { return temperature; }
+    public void setTemperature(Integer temperature) { this.temperature = temperature; }
 
     @Override
     public int describeContents() { return 0; }
@@ -121,15 +120,17 @@ public class Device implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
+        dest.writeString(roomId);
         dest.writeString(name);
-        dest.writeString(room);
         dest.writeString(type.name());
         dest.writeByte((byte) (isEnabled ? 1 : 0));
-        dest.writeInt(temperature);
-        dest.writeInt(timerMinutes);
-        dest.writeLong(timerStartTime);
-        dest.writeByte((byte) (isTimerActive ? 1 : 0));
         dest.writeInt(imageResId);
+        if (temperature == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(temperature);
+        }
     }
 
     @Override
@@ -137,16 +138,15 @@ public class Device implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Device device = (Device) o;
-        return isEnabled == device.isEnabled && temperature == device.temperature && 
-               timerMinutes == device.timerMinutes && timerStartTime == device.timerStartTime && 
-               isTimerActive == device.isTimerActive && imageResId == device.imageResId && 
-               Objects.equals(id, device.id) && Objects.equals(name, device.name) && 
-               Objects.equals(room, device.room) && type == device.type;
+        return isEnabled == device.isEnabled && 
+               imageResId == device.imageResId && 
+               Objects.equals(id, device.id) && Objects.equals(roomId, device.roomId) &&
+               Objects.equals(name, device.name) && type == device.type &&
+               Objects.equals(temperature, device.temperature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, room, type, isEnabled, temperature, 
-                            timerMinutes, timerStartTime, isTimerActive, imageResId);
+        return Objects.hash(id, roomId, name, type, isEnabled, imageResId, temperature);
     }
 }

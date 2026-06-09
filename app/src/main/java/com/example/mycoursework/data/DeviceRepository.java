@@ -1,84 +1,124 @@
 package com.example.mycoursework.data;
 
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.example.mycoursework.model.AcSettings;
 import com.example.mycoursework.model.Device;
+import com.example.mycoursework.model.Room;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 public class DeviceRepository {
     private static DeviceRepository instance;
-    private final MutableLiveData<List<Device>> devicesLiveData = new MutableLiveData<>(new ArrayList<>());
+    private final DeviceDao deviceDao;
+    private final RoomDao roomDao;
+    private final AcSettingsDao acSettingsDao;
+    private final ExecutorService executor;
+    private final MutableLiveData<String> currentUsername = new MutableLiveData<>();
 
-    private DeviceRepository() {
-        List<Device> initialDevices = new ArrayList<>();
-        initialDevices.add(new Device("Main Light", "Living Room", Device.Type.LIGHT));
-        initialDevices.add(new Device("AC", "Bedroom", Device.Type.AC));
-        initialDevices.add(new Device("Smart Plug", "Kitchen", Device.Type.SOCKET));
-        devicesLiveData.setValue(initialDevices);
+    private DeviceRepository(Application application) {
+        AppDatabase db = AppDatabase.getDatabase(application);
+        deviceDao = db.deviceDao();
+        roomDao = db.roomDao();
+        acSettingsDao = db.acSettingsDao();
+        executor = AppDatabase.databaseWriteExecutor;
     }
 
-    public static synchronized DeviceRepository getInstance() {
+    public static synchronized DeviceRepository getInstance(Application application) {
         if (instance == null) {
-            instance = new DeviceRepository();
+            instance = new DeviceRepository(application);
         }
         return instance;
     }
 
-    public LiveData<List<Device>> getDevices() {
-        return devicesLiveData;
+    public void setCurrentUser(String username) {
+        currentUsername.setValue(username);
     }
 
-    public LiveData<List<String>> getRooms() {
-        return Transformations.map(devicesLiveData, devices -> {
-            Set<String> rooms = new HashSet<>();
-            for (Device device : devices) {
-                rooms.add(device.getRoom());
-            }
-            return new ArrayList<>(rooms);
+    public LiveData<List<Device>> getDevices() {
+        return Transformations.switchMap(currentUsername, username -> {
+            if (username == null) return new MutableLiveData<>(new ArrayList<>());
+            return deviceDao.getDevicesForUser(username);
         });
     }
 
-    public void addDevice(Device device) {
-        List<Device> currentDevices = new ArrayList<>(devicesLiveData.getValue());
-        currentDevices.add(device);
-        devicesLiveData.setValue(currentDevices);
+    public LiveData<List<Room>> getRooms() {
+        return Transformations.switchMap(currentUsername, username -> {
+            if (username == null) return new MutableLiveData<>(new ArrayList<>());
+            return roomDao.getRoomsForUser(username);
+        });
+    }
+
+    public void addDevice(String deviceName, String roomName, Device.Type type, int imageResId) {
+        executor.execute(() -> {
+            String username = currentUsername.getValue();
+            if (username == null) return;
+
+            Room room = roomDao.getRoomByNameAndUser(username, roomName);
+            String roomId;
+            if (room == null) {
+                Room newRoom = new Room(roomName, username);
+                roomDao.insert(newRoom);
+                roomId = newRoom.getId();
+            } else {
+                roomId = room.getId();
+            }
+
+            Device device = new Device(deviceName, roomId, type, imageResId);
+            deviceDao.insert(device);
+
+            if (type == Device.Type.AC) {
+                acSettingsDao.insert(new AcSettings(device.getId(), 22));
+            }
+        });
     }
 
     public void updateDevice(Device updatedDevice) {
-        List<Device> currentDevices = new ArrayList<>(devicesLiveData.getValue());
-        for (int i = 0; i < currentDevices.size(); i++) {
-            if (currentDevices.get(i).getId().equals(updatedDevice.getId())) {
-                currentDevices.set(i, updatedDevice);
-                break;
-            }
-        }
-        devicesLiveData.setValue(currentDevices);
+        executor.execute(() -> deviceDao.update(updatedDevice));
     }
 
-    public void turnOffAllDevices() {
-        List<Device> currentDevices = new ArrayList<>(devicesLiveData.getValue());
-        boolean changed = false;
-        for (Device device : currentDevices) {
-            if (device.isEnabled()) {
-                device.setEnabled(false);
-                device.setTimerActive(false);
-                changed = true;
+    public void updateAcTemperature(String deviceId, int temperature) {
+        executor.execute(() -> {
+            // Update AcSettings
+            AcSettings settings = acSettingsDao.getSettingsForDeviceSync(deviceId);
+            if (settings != null) {
+                settings.setTemperature(temperature);
+                acSettingsDao.update(settings);
+            } else {
+                acSettingsDao.insert(new AcSettings(deviceId, temperature));
             }
-        }
-        if (changed) {
-            devicesLiveData.setValue(currentDevices);
-        }
+
+            // Update Device entity to show temperature in the list
+            Device device = deviceDao.getDeviceById(deviceId);
+            if (device != null) {
+                device.setTemperature(temperature);
+                deviceDao.update(device);
+            }
+        });
+    }
+
+    public LiveData<AcSettings> getAcSettings(String deviceId) {
+        return acSettingsDao.getSettingsForDevice(deviceId);
     }
 
     public void deleteDevice(String deviceId) {
-        List<Device> currentDevices = new ArrayList<>(devicesLiveData.getValue());
-        currentDevices.removeIf(device -> device.getId().equals(deviceId));
-        devicesLiveData.setValue(currentDevices);
+        executor.execute(() -> deviceDao.deleteById(deviceId));
+    }
+
+    public interface DeviceCallback {
+        void onDeviceLoaded(Device device);
+    }
+
+    public void getDeviceById(String deviceId, DeviceCallback callback) {
+        executor.execute(() -> {
+            Device device = deviceDao.getDeviceById(deviceId);
+            callback.onDeviceLoaded(device);
+        });
     }
 }
