@@ -39,11 +39,11 @@ public class UserRepository {
         executor.execute(() -> {
             User existing = userDao.getUserByUsername(username);
             if (existing != null) {
-                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(false, "Username already exists"));
+                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(false, "Имя пользователя уже существует"));
                 return;
             }
             userDao.insert(new User(username, password, role));
-            new Handler(Looper.getMainLooper()).post(() -> callback.onResult(true, "Registration successful"));
+            new Handler(Looper.getMainLooper()).post(() -> callback.onResult(true, "Регистрация успешна"));
         });
     }
 
@@ -53,10 +53,10 @@ public class UserRepository {
             if (user != null && user.getPassword().equals(password)) {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     currentUser.setValue(user);
-                    callback.onResult(true, "Login successful");
+                    callback.onResult(true, "Авторизация успешна");
                 });
             } else {
-                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(false, "Invalid username or password"));
+                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(false, "Неверное имя пользователя или пароль"));
             }
         });
     }
